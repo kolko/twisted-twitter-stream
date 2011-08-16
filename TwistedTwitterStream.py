@@ -23,6 +23,7 @@ http://apiwiki.twitter.com/Streaming-API-Documentation"""
 import base64, urllib
 from twisted.protocols import basic
 from twisted.internet import defer, reactor, protocol
+import oauth
 
 try:
     import simplejson as _json
