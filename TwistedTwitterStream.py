@@ -127,11 +127,11 @@ class _TwitterStreamFactory(protocol.ReconnectingClientFactory):
              
         
     def make_header(self, username, password, method, uri, postdata=""):
-        oauth = 0
+        oautht = 0
         if self.OAconsumer:
             if self.token:
-                oauth = 1
-        if oauth == 0:
+                oautht = 1
+        if oautht == 0:
             auth = base64.encodestring("%s:%s" % (username, password)).strip()
             header = [
                 "%s %s HTTP/1.1" % (method, uri),
@@ -145,7 +145,7 @@ class _TwitterStreamFactory(protocol.ReconnectingClientFactory):
             oauth_request.sign_request(oauth.OAuthSignatureMethod_HMAC_SHA1(), self.OAconsumer, self.token)
             header = [
                 "%s %s HTTP/1.1" % (method, uri),
-                "%s: %s" % oauth_request.to_header().items(),
+                "%s: %s" % oauth_request.to_header().items()[0],
                 "User-Agent: twisted twitter radio",
                 "Host: stream.twitter.com",
             ]
@@ -164,19 +164,17 @@ class _TwitterStreamFactory(protocol.ReconnectingClientFactory):
 #This library if so dirty =\ 
  
 def firehose(username, password, consumer, OAconsumer=None, token=None):
-    tw = _TwitterStreamFactory(consumer, OAconsumer=None, token=None)
+    tw = _TwitterStreamFactory(consumer, OAconsumer=OAconsumer, token=token)
     tw.make_header(username, password, "GET", "/1/statuses/firehose.json")
     reactor.connectTCP("stream.twitter.com", 80, tw)
 
 def retweet(username, password, consumer, OAconsumer=None, token=None):
-    tw = _TwitterStreamFactory(consumer, OAconsumer=None, token=None)
+    tw = _TwitterStreamFactory(consumer, OAconsumer=OAconsumer, token=token)
     tw.make_header(username, password, "GET", "/1/statuses/retweet.json")
     reactor.connectTCP("stream.twitter.com", 80, tw)
 
 def sample(username, password, consumer, OAconsumer=None, token=None):
-    tw = _TwitterStreamFactory(consumer, OAconsumer=None, token=None)
-    tw.consumerr=consumerr
-    tw.token=token
+    tw = _TwitterStreamFactory(consumer, OAconsumer=OAconsumer, token=token)
     tw.make_header(username, password, "GET", "http://stream.twitter.com/1/statuses/sample.json")
     reactor.connectTCP("stream.twitter.com", 80, tw)
 
@@ -194,6 +192,6 @@ def filter(username, password, consumer, count=0, delimited=0, track=[], follow=
     if not (track or follow):
         raise RuntimeError("At least one parameter is required: track or follow")
 
-    tw = _TwitterStreamFactory(consumer, OAconsumer=None, token=None)
+    tw = _TwitterStreamFactory(consumer, OAconsumer=OAconsumer, token=token)
     tw.make_header(username, password, "POST", "/1/statuses/filter.json", "&".join(qs))
     reactor.connectTCP("stream.twitter.com", 80, tw)
